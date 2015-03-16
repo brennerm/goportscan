@@ -59,6 +59,10 @@ func (ps PortScanner) ScanPortRange(start_port int, end_port int) map[int]string
 // resolves service if open port is known
 func (ps PortScanner) ScanPorts(ports []int) map[int]string {
 	results := make(map[int]string)
+	
+	if len(ports) == 0 {
+		return results
+	}
 
 	for _, port := range ports {
 		if isOpen(ps.host, port) {

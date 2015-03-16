@@ -37,6 +37,7 @@ var KNOWN_TCP_PORTS = map[int]string{
 	1293: "ipsec",
 	1812: "radius",
 	8080: "http",
+	KNOWN_TEST_PORT: "test port",
 }
 
 var KNOWN_UDP_PORTS = map[int]string{
