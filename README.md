@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/brennerm/goportscan.svg?branch=master)](https://travis-ci.org/brennerm/goportscan)
+[![codecov.io](https://codecov.io/github/brennerm/goportscan/coverage.svg?branch=master)](https://codecov.io/github/brennerm/goportscan?branch=master)
 
 ##Installation
 
