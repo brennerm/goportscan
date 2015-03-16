@@ -1,12 +1,41 @@
-Installation
---------------
+##Installation
 
 ```bash
 $ go get github.com/brennerm/goportscan
 ```
 
-Example Usage
-----------------
+##Documentation
+
+###NewPortScanner()
+```go
+func NewPortScanner(host string) PortScanner
+```
+returns a PortScanner instance for given __host__
+
+###ScanPortRange()
+```go
+func (ps PortScanner)ScanPortRange(start_port int, end_port int) map[int]string
+```
+scans host for ports between __start\_port__ and __end\_port__
+resolves service if port is known
+returns map with open port as key and service description as value
+
+###ScanPorts()
+```go
+func (ps PortScanner)ScanPorts(ports []int) map[int]string
+```
+scans host for ports in __ports__
+resolves service if port is known
+returns map with open port as key and service description as value
+
+###ScanKnownPorts()
+```go
+func (ps PortScanner)ScanKnownPorts() map[int]string
+```
+scans host for known ports
+returns map with open port as key and service description as value
+
+##Example Usage
 
 ```go
 package main
