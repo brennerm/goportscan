@@ -53,6 +53,7 @@ import (
 
 func main(){
 
+<<<<<<< HEAD
     ps := goportscan.NewPortScanner("127.0.0.1")
 
     for port, service := range ps.ScanKnownPorts(){
