@@ -1,4 +1,4 @@
-package portscan
+package goportscan
 
 import (
 	"log"
@@ -12,7 +12,12 @@ type PortScanner struct {
 
 const UNKNOWN = "unknown"
 
+// returns new PortScanner instance
+// if host is empty "localhost" is assumed
 func NewPortScanner(host string) *PortScanner {
+	if host == ""{
+		host = "localhost"
+	}
 	return &PortScanner{host}
 }
 

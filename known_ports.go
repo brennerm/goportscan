@@ -1,4 +1,4 @@
-package portscan
+package goportscan
 
 var KNOWN_TCP_PORTS = map[int]string{
 	20: "ftp - filetransfer",
