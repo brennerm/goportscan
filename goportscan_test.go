@@ -65,6 +65,52 @@ func TestScanPorts(t *testing.T){
 	
 }
 
+func TestScanKnownPorts(t *testing.T){
+	listener_known := setupLocalListener(t, KNOWN_TEST_PORT)
+	defer listener_known.Close()
+	
+	ps := NewPortScanner("localhost")
+	
+	expected := map[int]string {
+  	    KNOWN_TEST_PORT: "test port",
+	}
+	actual := ps.ScanKnownPorts()
+	
+	// only compare our test port, cause there could be other open ports on localhost
+	if actual[KNOWN_TEST_PORT] != expected[KNOWN_TEST_PORT]{
+		t.Errorf("Got: %q; Expected: %q", actual, expected)
+	}
+}
+
+func TestScanPortRange(t *testing.T){
+	listener_known := setupLocalListener(t, KNOWN_TEST_PORT)
+	defer listener_known.Close()
+	
+	listener_unknown := setupLocalListener(t, UNKNOWN_TEST_PORT)
+	defer listener_unknown.Close()
+	
+	ps := NewPortScanner("localhost")
+	
+	expected := map[int]string {
+  	    KNOWN_TEST_PORT: "test port",
+		UNKNOWN_TEST_PORT: "unknown",
+	}
+	actual := ps.ScanPortRange(KNOWN_TEST_PORT, UNKNOWN_TEST_PORT)
+	
+	if !reflect.DeepEqual(actual, expected){
+		t.Errorf("Got: %q; Expected: %q", actual, expected)
+	}
+	
+	defer func() {
+		if err := recover(); err != "start_port has to be smaller than end_port" {
+		    t.Errorf("Got: %q; Expected: %q", err, "start_port has to be smaller than end_port")
+		}
+		
+	}()
+	
+	ps.ScanPortRange(1, 0)
+}
+
 func TestIsOpen(t *testing.T){
 	listener := setupLocalListener(t, KNOWN_TEST_PORT)
 	defer listener.Close()
