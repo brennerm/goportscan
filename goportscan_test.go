@@ -1,22 +1,40 @@
 package goportscan
 
 import(
+	"io/ioutil"
+	"log"
 	"net"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
-func setupLocalListener(t *testing.T, port int) net.Listener {
-	listener, err := net.Listen("tcp4", assembleEndpoint("localhost", port))
+const TEST_HOST = "localhost"
+
+func TestMain(m *testing.M){
+	listener_tcp_known := setupLocalListener("tcp4", KNOWN_TEST_PORT)
+	defer listener_tcp_known.Close()
+	
+	listener_tcp_unknown := setupLocalListener("tcp4", UNKNOWN_TEST_PORT)
+	defer listener_tcp_unknown.Close()
+	
+	// disable log output
+	log.SetOutput(ioutil.Discard)
+	
+	m.Run()
+}
+
+func setupLocalListener(network string, port int) net.Listener {
+	listener, err := net.Listen(network, assembleEndpoint(TEST_HOST, port))
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
 	return listener
 }
 
 func TestNewPortScanner(t *testing.T){
-	expected := PortScanner{"localhost"}
-	actual := *NewPortScanner("localhost")
+	expected := PortScanner{TEST_HOST}
+	actual := *NewPortScanner(TEST_HOST)
 	
 	if actual != expected {
 		t.Errorf("Got: %q; Expected: %q", actual, expected)
@@ -30,7 +48,7 @@ func TestNewPortScanner(t *testing.T){
 }
 
 func TestScanPorts(t *testing.T){
-	ps := NewPortScanner("localhost")
+	ps := NewPortScanner(TEST_HOST)
 	
 	expected := make(map[int]string)
 	actual := ps.ScanPorts([]int{})
@@ -38,9 +56,6 @@ func TestScanPorts(t *testing.T){
 	if !reflect.DeepEqual(actual, expected){
 		t.Errorf("Got: %q; Expected: %q", actual, expected)
 	}
-	
-	listener_known := setupLocalListener(t, KNOWN_TEST_PORT)
-	defer listener_known.Close()
 	
 	expected = map[int]string {
   	    KNOWN_TEST_PORT: "test port",
@@ -50,9 +65,6 @@ func TestScanPorts(t *testing.T){
 	if !reflect.DeepEqual(actual, expected){
 		t.Errorf("Got: %q; Expected: %q", actual, expected)
 	}
-	
-	listener_unknown := setupLocalListener(t, UNKNOWN_TEST_PORT)
-	defer listener_unknown.Close()
 	
 	expected = map[int]string {
   	    UNKNOWN_TEST_PORT: "unknown",
@@ -66,10 +78,7 @@ func TestScanPorts(t *testing.T){
 }
 
 func TestScanKnownPorts(t *testing.T){
-	listener_known := setupLocalListener(t, KNOWN_TEST_PORT)
-	defer listener_known.Close()
-	
-	ps := NewPortScanner("localhost")
+	ps := NewPortScanner(TEST_HOST)
 	
 	expected := map[int]string {
   	    KNOWN_TEST_PORT: "test port",
@@ -83,13 +92,7 @@ func TestScanKnownPorts(t *testing.T){
 }
 
 func TestScanPortRange(t *testing.T){
-	listener_known := setupLocalListener(t, KNOWN_TEST_PORT)
-	defer listener_known.Close()
-	
-	listener_unknown := setupLocalListener(t, UNKNOWN_TEST_PORT)
-	defer listener_unknown.Close()
-	
-	ps := NewPortScanner("localhost")
+	ps := NewPortScanner(TEST_HOST)
 	
 	expected := map[int]string {
   	    KNOWN_TEST_PORT: "test port",
@@ -108,15 +111,13 @@ func TestScanPortRange(t *testing.T){
 		
 	}()
 	
+	// trigger panic
 	ps.ScanPortRange(1, 0)
 }
 
 func TestIsOpen(t *testing.T){
-	listener := setupLocalListener(t, KNOWN_TEST_PORT)
-	defer listener.Close()
-	
 	expected := true
-	actual := isOpen("localhost", KNOWN_TEST_PORT)
+	actual := isOpen(TEST_HOST, KNOWN_TEST_PORT)
 	
 	if actual != expected{
 		t.Errorf("Got: %q; Expected: %q", actual, expected)
@@ -124,7 +125,7 @@ func TestIsOpen(t *testing.T){
 	
 	expected = false
 	// port 0 is wildcard for a random free port
-	actual = isOpen("localhost", 0)
+	actual = isOpen(TEST_HOST, 0)
 	
 	if actual != expected{
 		t.Errorf("Got: %q; Expected: %q", actual, expected)
@@ -132,8 +133,8 @@ func TestIsOpen(t *testing.T){
 }
 
 func TestAssembleEndpoint(t * testing.T){
-	expected := "localhost:80"
-	actual := assembleEndpoint("localhost", 80)
+	expected := TEST_HOST + ":" + strconv.Itoa(KNOWN_TEST_PORT)
+	actual := assembleEndpoint(TEST_HOST, KNOWN_TEST_PORT)
 	
 	if actual != expected {
 		t.Errorf("Got: %q; Expected: %q", actual, expected)

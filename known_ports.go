@@ -44,5 +44,6 @@ var KNOWN_TCP_PORTS = map[int]string{
 }
 
 var KNOWN_UDP_PORTS = map[int]string{
-	53: "DNS",
+	53: "dns",
+	123: "ntp",
 }
