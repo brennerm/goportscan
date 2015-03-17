@@ -6,9 +6,6 @@ import(
 	"testing"
 )
 
-const KNOWN_TEST_PORT = 12345
-const UNKNOWN_TEST_PORT = 12346
-
 func setupLocalListener(t *testing.T, port int) net.Listener {
 	listener, err := net.Listen("tcp4", assembleEndpoint("localhost", port))
 	if err != nil {

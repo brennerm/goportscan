@@ -1,5 +1,8 @@
 package goportscan
 
+const KNOWN_TEST_PORT = 12345
+const UNKNOWN_TEST_PORT = 12346
+
 var KNOWN_TCP_PORTS = map[int]string{
 	20: "ftp - filetransfer",
 	21: "ftp - control",
