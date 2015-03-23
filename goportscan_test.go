@@ -7,9 +7,11 @@ import(
 	"reflect"
 	"strconv"
 	"testing"
+	"time"
 )
 
 const TEST_HOST = "localhost"
+const TEST_TIMEOUT = time.Second
 
 func TestMain(m *testing.M){
 	listener_tcp_known := setupLocalListener("tcp4", KNOWN_TEST_PORT)
@@ -33,7 +35,7 @@ func setupLocalListener(network string, port int) net.Listener {
 }
 
 func TestNewPortScanner(t *testing.T){
-	expected := PortScanner{TEST_HOST}
+	expected := PortScanner{TEST_HOST, DEFAULT_TIMEOUT}
 	actual := *NewPortScanner(TEST_HOST)
 	
 	if actual != expected {
@@ -41,6 +43,13 @@ func TestNewPortScanner(t *testing.T){
 	}
 	
 	actual = *NewPortScanner("")
+	
+	if actual != expected {
+		t.Errorf("Got: %q; Expected: %q", actual, expected)
+	}
+	
+	expected = PortScanner{TEST_HOST, TEST_TIMEOUT}
+	actual = *NewPortScanner(TEST_HOST, TEST_TIMEOUT)
 	
 	if actual != expected {
 		t.Errorf("Got: %q; Expected: %q", actual, expected)
@@ -117,7 +126,7 @@ func TestScanPortRange(t *testing.T){
 
 func TestIsOpen(t *testing.T){
 	expected := true
-	actual := isOpen(TEST_HOST, KNOWN_TEST_PORT)
+	actual := isOpen(TEST_HOST, KNOWN_TEST_PORT, TEST_TIMEOUT)
 	
 	if actual != expected{
 		t.Errorf("Got: %q; Expected: %q", actual, expected)
@@ -125,7 +134,7 @@ func TestIsOpen(t *testing.T){
 	
 	expected = false
 	// port 0 is wildcard for a random free port
-	actual = isOpen(TEST_HOST, 0)
+	actual = isOpen(TEST_HOST, 0, TEST_TIMEOUT)
 	
 	if actual != expected{
 		t.Errorf("Got: %q; Expected: %q", actual, expected)

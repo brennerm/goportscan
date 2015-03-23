@@ -4,21 +4,29 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"time"
 )
 
 type PortScanner struct {
 	host string
+	timeout time.Duration
 }
 
 const UNKNOWN = "unknown"
+const DEFAULT_TIMEOUT = 500 * time.Millisecond
 
 // returns new PortScanner instance
 // if host is empty "localhost" is assumed
-func NewPortScanner(host string) *PortScanner {
+func NewPortScanner(host string, given_timeout ...time.Duration) *PortScanner {
+	timeout := DEFAULT_TIMEOUT
+	if len(given_timeout) > 0 {
+		timeout = given_timeout[0]
+	}
+	
 	if host == ""{
 		host = "localhost"
 	}
-	return &PortScanner{host}
+	return &PortScanner{host, timeout}
 }
 
 // checks for known ports and resolves services if port is open
@@ -26,11 +34,10 @@ func (ps PortScanner) ScanKnownPorts() map[int]string {
 	results := make(map[int]string)
 
 	for port, service := range KNOWN_TCP_PORTS {
-		if isOpen(ps.host, port) {
+		if isOpen(ps.host, port, ps.timeout) {
 			results[port] = service
 		}
 	}
-
 	return results
 }
 
@@ -43,7 +50,7 @@ func (ps PortScanner) ScanPortRange(start_port int, end_port int) map[int]string
 	results := make(map[int]string)
 
 	for start_port <= end_port {
-		if isOpen(ps.host, start_port) {
+		if isOpen(ps.host, start_port, ps.timeout) {
 			if val, ok := KNOWN_TCP_PORTS[start_port]; ok {
 				results[start_port] = val
 			} else {
@@ -65,7 +72,7 @@ func (ps PortScanner) ScanPorts(ports []int) map[int]string {
 	}
 
 	for _, port := range ports {
-		if isOpen(ps.host, port) {
+		if isOpen(ps.host, port, ps.timeout) {
 			if val, ok := KNOWN_TCP_PORTS[port]; ok {
 				results[port] = val
 			} else {
@@ -77,18 +84,11 @@ func (ps PortScanner) ScanPorts(ports []int) map[int]string {
 }
 
 // checks if given host is reachable and port is open
-func isOpen(host string, port int) bool {
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", assembleEndpoint(host, port))
-	if err != nil {
-		log.Print(err)
-		return false
-	}
-
-	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+func isOpen(host string, port int, timeout time.Duration) bool {
+	conn, err := net.DialTimeout("tcp", assembleEndpoint(host, port), timeout)
 	if err != nil {
 		return false
 	}
-
 	conn.Close()
 	return true
 }
