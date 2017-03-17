@@ -1,27 +1,27 @@
 [![Build Status](https://travis-ci.org/brennerm/goportscan.svg?branch=master)](https://travis-ci.org/brennerm/goportscan)
 [![codecov.io](https://codecov.io/github/brennerm/goportscan/coverage.svg?branch=master)](https://codecov.io/github/brennerm/goportscan?branch=master)
 
-##Installation
+## Installation
 
 ```bash
 $ go get github.com/brennerm/goportscan
 ```
 
-##Testing
+## Testing
 Run tests with
 ```bash
 $ go test
 ```
 
-##Documentation
+## Documentation
 
-###NewPortScanner()
+### NewPortScanner()
 ```go
 func NewPortScanner(host string) PortScanner
 ```
 returns a PortScanner instance for given __host__
 
-###ScanPortRange()
+### ScanPortRange()
 ```go
 func (ps PortScanner)ScanPortRange(start_port int, end_port int) map[int]string
 ```
@@ -29,7 +29,7 @@ scans host for ports between __start\_port__ and __end\_port__
 resolves service if port is known
 returns map with open port as key and service description as value
 
-###ScanPorts()
+### ScanPorts()
 ```go
 func (ps PortScanner)ScanPorts(ports []int) map[int]string
 ```
@@ -37,14 +37,14 @@ scans host for ports in __ports__
 resolves service if port is known
 returns map with open port as key and service description as value
 
-###ScanKnownPorts()
+### ScanKnownPorts()
 ```go
 func (ps PortScanner)ScanKnownPorts() map[int]string
 ```
 scans host for known ports
 returns map with open port as key and service description as value
 
-##Example Usage
+## Example Usage
 
 ```go
 package main
